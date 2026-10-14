@@ -1,5 +1,7 @@
 package baseNoStates.requests;
-
+import baseNoStates.Area;
+import baseNoStates.DirectoryAreas;
+import baseNoStates.Door;
 import baseNoStates.Actions;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -39,7 +41,7 @@ public class RequestArea implements Request {
       jsonRequests.put(rd.answerToJson());
     }
     json.put("requestsDoors", jsonRequests);
-    json.put("todo", "request areas not yet implemented");
+    //json.put("todo", "request areas not yet implemented");
     return json;
   }
 
@@ -66,7 +68,7 @@ public class RequestArea implements Request {
   public void process() {
     // commented out until Area, Space and Partition are implemented
 
-    /*
+
     // make the door requests and put them into the area request to be authorized later and
     // processed later
     Area area = DirectoryAreas.findAreaById(areaId);
@@ -85,6 +87,6 @@ public class RequestArea implements Request {
         requests.add(requestReader);
       }
     }
-     */
+
   }
 }

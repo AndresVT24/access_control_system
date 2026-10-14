@@ -1,0 +1,120 @@
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+
+class Webserver {
+  - {static} PORT : int
+  - {static} FORMATTER : DateTimeFormatter
+  + Webserver()
+}
+
+class SocketThread {
+  - insocket : Socket
+  - makeRequest(tokens : String[]) : Request
+  - makeRequestReader(tokens : String[]) : RequestReader
+  - makeRequestArea(tokens : String[]) : RequestArea
+  - makeHeaderAnswer() : String
+  - makeJsonAnswer(request : Request) : String
+  + run()
+}
+
+Webserver +-right- SocketThread
+
+note right of SocketThread
+  inner class
+  of Webserver
+end note
+
+class DirectoryDoors {
+  - {static} allDoors : ArrayList<Door>
+  + {static} makeDoors()
+  + {static} findDoorById(id : String) : Door
+  + {static} getAllDoors() : ArrayList<Door>
+}
+
+DirectoryDoors --> "*" Door : allDoors
+
+class DirectoryUsers {
+  - {static} users : ArrayList<User>
+  + {static} makeUsers()
+  + {static} findUserByCredential(credential : String) : User
+}
+
+DirectoryUsers --> "*" User : users
+
+class Door {
+  - id : String
+  - closed : boolean
+  - state : DoorState
+  + Door(id : String)
+  + getState() : DoorState
+  + setState(state : DoorState)
+  + processRequest(request : RequestReader)
+  - doAction(action : String)
+  + setClosed(closed : boolean)
+  + isClosed() : boolean
+  + getId() : String
+  + getStateName() : String
+  + toString() : String
+  + toJson() : JSONObject
+}
+
+abstract class DoorState {
+  # door : Door
+  # name : String
+  + DoorState(door : Door)
+  + getName() : String
+  {abstract} + open() : void
+  {abstract} + close() : void
+  {abstract} + lock() : void
+  {abstract} + unlock() : void
+}
+
+class Locked {
+  + Locked(door : Door)
+  + open() : void
+  + close() : void
+  + lock() : void
+  + unlock() : void
+}
+
+class Unlocked {
+  + Unlocked(door : Door)
+  + open() : void
+  + close() : void
+  + lock() : void
+  + unlock() : void
+}
+
+Door *-- DoorState : state
+DoorState <|-- Locked
+DoorState <|-- Unlocked
+DoorState --> Door : door
+
+class User {
+  - name : String
+  - credential : String
+  + User(name : String, credential : String)
+  + toString() : String
+}
+
+class Main {
+  + {static} main(args : String[])
+}
+class States {
+  {static} + LOCKED : String
+  {static} + UNLOCKED : String
+}
+
+note right of Main::main
+  DirectoryDoors.makeDoors()
+  DirectoryUsers.makeUsers()
+  new Webserver()
+end note
+
+Main -[hidden]down- Webserver
+Webserver -[hidden]down- DirectoryDoors
+DirectoryDoors -[hidden]right- DirectoryUsers
+
+@enduml
+```
