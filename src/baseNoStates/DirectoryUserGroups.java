@@ -1,7 +1,10 @@
-
 package baseNoStates;
 
 import java.util.ArrayList;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.EnumSet;
 
 /**
  * Manages the creation and lookup of user groups.
@@ -25,7 +28,7 @@ public final class DirectoryUserGroups {
    */
   public static void makeUserGroups() {
     userGroups.clear();
-
+    //Creation UserGroups
     UserGroup blank = new UserGroup("Blank");
     UserGroup employees = new UserGroup("Employees");
     UserGroup managers = new UserGroup("Managers");
@@ -33,6 +36,7 @@ public final class DirectoryUserGroups {
 
     userGroups.add(blank);
 
+    //Adding Areas to UserGroups
     employees.addArea(DirectoryAreas.findAreaById("ground floor"));
     employees.addArea(DirectoryAreas.findAreaById("floor 1"));
     employees.addArea(DirectoryAreas.findAreaById("exterior"));
@@ -44,6 +48,54 @@ public final class DirectoryUserGroups {
 
     administrator.addArea(DirectoryAreas.findAreaById("building"));
     userGroups.add(administrator);
+
+    //Creation of a Schedule Employee
+    Schedule employeeSchedule = new Schedule(
+            LocalDate.of(2026, 9, 1),
+            LocalDate.of(2027, 3, 1),
+            LocalTime.of(9, 0),
+            LocalTime.of(17, 0),
+            EnumSet.range(DayOfWeek.MONDAY, DayOfWeek.FRIDAY)
+    );
+    employees.setSchedule(employeeSchedule);
+
+    //Creation of a Schedule Manager
+    Schedule managerSchedule = new Schedule(
+            LocalDate.of(2026, 9, 1),
+            LocalDate.of(2027, 3, 1),
+            LocalTime.of(8, 0),
+            LocalTime.of(20, 0),
+            EnumSet.range(DayOfWeek.MONDAY, DayOfWeek.SATURDAY)
+    );
+    managers.setSchedule(managerSchedule);
+
+    //Creation of a Schedule Admin
+    Schedule administratorSchedule = new Schedule(
+            LocalDate.of(2026, 1, 1),
+            LocalDate.of(2100, 12, 31),
+            LocalTime.MIN,
+            LocalTime.MAX,
+            EnumSet.allOf(DayOfWeek.class)
+    );
+    administrator.setSchedule(administratorSchedule);
+
+    //Adding Actions to UserGroup
+    employees.addAllowedAction(Actions.OPEN);
+    employees.addAllowedAction(Actions.CLOSE);
+    employees.addAllowedAction(Actions.UNLOCK_SHORTLY);
+
+    String[] allActions = {
+            Actions.OPEN,
+            Actions.CLOSE,
+            Actions.LOCK,
+            Actions.UNLOCK,
+            Actions.UNLOCK_SHORTLY
+    };
+
+    for (String action : allActions) {
+      managers.addAllowedAction(action);
+      administrator.addAllowedAction(action);
+    }
   }
 
   /**

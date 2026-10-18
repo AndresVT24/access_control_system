@@ -97,13 +97,20 @@ public class RequestReader implements Request {
       addReason("user doesn't exists");
       return;
     }
+
     userName = user.getName();
     Space fromSpace= door.getFrom();
     Space toSpace = door.getTo();
     // The user must be authorized to stay in both connected spaces.
+    // WHERE: Check the spaces the user can access.
     boolean canStayFrom = user.canBeInSpace(fromSpace);
     boolean canStayTo = user.canBeInSpace(toSpace);
-    if (canStayFrom && canStayTo) {
+    // WHEN: Check the user's schedule.
+    boolean validSchedule = user.canSendRequests(now);
+    // WHAT: Check the requested action.
+    boolean validAction = user.canDoAction(action);
+
+    if (canStayFrom && canStayTo && validSchedule && validAction) {
       authorized = true;
     } else {
       authorized = false;
@@ -111,12 +118,16 @@ public class RequestReader implements Request {
       if (!canStayFrom) {
         addReason("user cannot stay in the from space");
       }
-
       if (!canStayTo) {
         addReason("user cannot stay in the to space");
       }
+      if (!validSchedule) {
+        addReason("user is outside the allowed schedule");
+      }
+      if (!validAction) {
+        addReason("user cannot perform this action");
+      }
     }
-
   }
 }
 

@@ -1,5 +1,6 @@
-
 package baseNoStates;
+
+import java.time.LocalDateTime;
 
 public class User {
 
@@ -33,9 +34,19 @@ public class User {
       userGroup.addUser(this);
     }
   }
+
   public boolean canBeInSpace(Space space) {
     return userGroup != null && userGroup.canBeInSpace(space);
   }
+
+  public boolean canSendRequests(LocalDateTime now) {
+    return userGroup != null && userGroup.canSendRequests(now);
+  }
+
+  public boolean canDoAction(String action) {
+    return userGroup != null && userGroup.canDoAction(action);
+  }
+
   @Override
   public String toString() {
     return "User{name='" + name
