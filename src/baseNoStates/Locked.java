@@ -1,27 +1,28 @@
 package baseNoStates;
 
-public class Locked extends DoorState{
-    public Locked(Door door){
-        super(door, "locked");
-    }
+public class Locked extends DoorState
+{
 
-    @Override
-    public void open(){
-        System.out.println("Door " + door.getId() + " can't be open because is locked");
-    }
+  public Locked(Door door){
+    super(door, States.LOCKED);
 
-    @Override
-    public void close(){
-        System.out.println("Door " + door.getId() + " is already closed");
-    }
+  }
+  public void open(){
+    System.out.print("Unable to open the door, it's locked");
 
-    @Override
-    public void lock(){
-        System.out.println("Door " + door.getId() + " is already locked");
-    }
+  }
+  public void close(){
+    System.out.print("It's already closed");
 
-    @Override
-    public void unlock(){
+
+  }
+  public void lock(){
+
+    System.out.print("It's already locked");
+  }
+  public void unlock()
+  {
         door.setState(new Unlocked(door));
-    }
+
+  }
 }

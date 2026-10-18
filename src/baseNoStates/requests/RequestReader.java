@@ -1,4 +1,5 @@
 package baseNoStates.requests;
+import baseNoStates.Space;
 
 import baseNoStates.DirectoryDoors;
 import baseNoStates.DirectoryUsers;
@@ -94,11 +95,28 @@ public class RequestReader implements Request {
     if (user == null) {
       authorized = false;
       addReason("user doesn't exists");
-    } else {
-      //TODO: get the who, where, when and what in order to decide, and if not
-      // authorized add the reason(s)
-      authorized = true;
+      return;
     }
+    userName = user.getName();
+    Space fromSpace= door.getFrom();
+    Space toSpace = door.getTo();
+    // The user must be authorized to stay in both connected spaces.
+    boolean canStayFrom = user.canBeInSpace(fromSpace);
+    boolean canStayTo = user.canBeInSpace(toSpace);
+    if (canStayFrom && canStayTo) {
+      authorized = true;
+    } else {
+      authorized = false;
+
+      if (!canStayFrom) {
+        addReason("user cannot stay in the from space");
+      }
+
+      if (!canStayTo) {
+        addReason("user cannot stay in the to space");
+      }
+    }
+
   }
 }
 

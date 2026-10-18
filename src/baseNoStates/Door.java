@@ -2,25 +2,49 @@ package baseNoStates;
 
 import baseNoStates.requests.RequestReader;
 import org.json.JSONObject;
-
+/**
+ * Represents a door connecting two spaces.
+ * The connected spaces are used to check access authorization.
+ */
 
 public class Door {
+  private DoorState state;
   private final String id;
   private boolean closed; // physically
-  private DoorState state;
+  private final Space from;
+  private final Space to;
 
-  public Door(String id) {
-    this.id = id;
-    closed = true;
-    state = new Unlocked(this);
+  public DoorState getState() {
+    return state;
   }
 
-  public void setState(DoorState state){
+  public void setState(DoorState state) {
     this.state = state;
   }
 
-  public void setClosed(boolean closed){
-    this.closed = closed;
+  public Door(String id, Space from, Space to) {
+    this.id = id;
+    closed = true;
+    this.state=new Unlocked(this);
+    this.to=to;
+    this.from=from;
+    // Register the door in the space it gives access to.
+    to.addDoor(this);
+
+  }
+  public Space getFrom() {
+    return from;
+  }
+  /**
+   * Checks whether this door connects the requested spaces.
+   * Both directions are accepted because a door connects two spaces.
+   */
+  public boolean connects(Space origin, Space destination) {
+    return (from == origin && to == destination)
+        || (from == destination && to == origin);
+  }
+  public Space getTo() {
+    return to;
   }
 
   public void processRequest(RequestReader request) {
@@ -58,7 +82,9 @@ public class Door {
         System.exit(-1);
     }
   }
-
+  public void setClosed(boolean closed){
+    this.closed=closed;
+  }
   public boolean isClosed() {
     return closed;
   }
@@ -68,7 +94,7 @@ public class Door {
   }
 
   public String getStateName() {
-    return this.state.getName();
+    return state.getName();
   }
 
   @Override

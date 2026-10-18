@@ -1,28 +1,38 @@
 package baseNoStates;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public final class DirectoryDoors {
-  private static ArrayList<Door> allDoors;
+
+  private static ArrayList<Door> allDoors = new ArrayList<>();
+
+  private DirectoryDoors() {
+  }
 
   public static void makeDoors() {
-    // basement
-    Door d1 = new Door("D1"); // exterior, parking
-    Door d2 = new Door("D2"); // stairs, parking
+    allDoors = new ArrayList<>();
 
-    // ground floor
-    Door d3 = new Door("D3"); // exterior, hall
-    Door d4 = new Door("D4"); // stairs, hall
-    Door d5 = new Door("D5"); // hall, room1
-    Door d6 = new Door("D6"); // hall, room2
+    Space exterior = DirectoryAreas.findSpaceById("exterior");
+    Space parking = DirectoryAreas.findSpaceById("parking");
+    Space stairs = DirectoryAreas.findSpaceById("stairs");
+    Space hall = DirectoryAreas.findSpaceById("hall");
+    Space room1 = DirectoryAreas.findSpaceById("room 1");
+    Space room2 = DirectoryAreas.findSpaceById("room 2");
+    Space corridor = DirectoryAreas.findSpaceById("corridor");
+    Space room3 = DirectoryAreas.findSpaceById("room 3");
+    Space it = DirectoryAreas.findSpaceById("IT");
 
-    // first floor
-    Door d7 = new Door("D7"); // stairs, corridor
-    Door d8 = new Door("D8"); // corridor, room3
-    Door d9 = new Door("D9"); // corridor, IT
+    allDoors.add(new Door("D1", exterior, parking));
+    allDoors.add(new Door("D2", stairs, parking));
 
-    allDoors = new ArrayList<>(Arrays.asList(d1, d2, d3, d4, d5, d6, d7, d8, d9));
+    allDoors.add(new Door("D3", exterior, hall));
+    allDoors.add(new Door("D4", stairs, hall));
+    allDoors.add(new Door("D5", hall, room1));
+    allDoors.add(new Door("D6", hall, room2));
+
+    allDoors.add(new Door("D7", stairs, corridor));
+    allDoors.add(new Door("D8", corridor, room3));
+    allDoors.add(new Door("D9", corridor, it));
   }
 
   public static Door findDoorById(String id) {
@@ -31,14 +41,10 @@ public final class DirectoryDoors {
         return door;
       }
     }
-    System.out.println("door with id " + id + " not found");
-    return null; // otherwise we get a Java error
+    return null;
   }
 
-  // this is needed by RequestRefresh
   public static ArrayList<Door> getAllDoors() {
-    System.out.println(allDoors);
-    return allDoors;
+    return new ArrayList<>(allDoors);
   }
-
 }
