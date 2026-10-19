@@ -1,9 +1,11 @@
 package baseNoStates;
 
-import baseNoStates.requests.RequestArea;
 import java.time.LocalDateTime;
+import baseNoStates.requests.RequestReader;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import java.util.Observable;
+import java.util.Observer;
 
 public class Tests {
     public static void main(String[] args) {
@@ -11,59 +13,75 @@ public class Tests {
         DirectoryDoors.makeDoors();
         DirectoryUsers.makeUsers();
 
-        // Administrator: can lock all doors.
-        RequestArea adminRequest = new RequestArea(
+        Door door = DirectoryDoors.findDoorById("D1");
+
+        // Start the shared clock for this test.
+        Door.startClock();
+
+        try {
+            // TEST 1: Closed door returns to Locked.
+            send(Actions.LOCK);
+            send(Actions.UNLOCK_SHORTLY);
+
+            checkState(door, States.UNLOCKED_SHORTLY);
+
+            // Wait for the automatic timeout.
+            Thread.sleep(12000);
+
+            checkState(door, States.LOCKED);
+            System.out.println("Test 1 passed!");
+
+            // TEST 2: Open door becomes Propped.
+            send(Actions.UNLOCK_SHORTLY);
+            send(Actions.OPEN);
+
+            Thread.sleep(12000);
+
+            checkState(door, States.PROPPED);
+            System.out.println("Test 2 passed!");
+
+            // TEST 3: Closing Propped returns to Locked.
+            send(Actions.CLOSE);
+
+            checkState(door, States.LOCKED);
+
+            if (!door.isClosed()) {
+                throw new AssertionError("Door should be closed");
+            }
+
+            System.out.println("Test 3 passed!");
+
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } finally {
+            // Stop the clock after testing.
+            Door.stopClock();
+        }
+    }
+
+    private static void send(String action) {
+
+        RequestReader request = new RequestReader(
                 "11343",
-                Actions.LOCK,
-                LocalDateTime.of(2026, 10, 18, 10, 0),
-                "ground floor"
+                action,
+                LocalDateTime.now(),
+                "D1"
         );
 
-        adminRequest.process();
+        request.process();
 
-        JSONArray adminDoors =
-                adminRequest.answerToJson().getJSONArray("requestsDoors");
-
-        if (adminDoors.length() != 4) {
-            throw new AssertionError("Expected 4 doors");
+        if (!request.isAuthorized()) {
+            throw new AssertionError("Request was not authorized");
         }
+    }
 
-        for (int i = 0; i < adminDoors.length(); i++) {
-            JSONObject result = adminDoors.getJSONObject(i);
+    private static void checkState(Door door, String expected) {
 
-            if (!result.getBoolean("authorized")
-                    || !result.getString("state").equals(States.LOCKED)) {
-                throw new AssertionError("Administrator test failed");
-            }
+        if (!door.getStateName().equals(expected)) {
+            throw new AssertionError(
+                    "Expected " + expected
+                            + " but got " + door.getStateName()
+            );
         }
-
-        System.out.println("Administrator test passed!");
-
-        // Employee: cannot lock doors.
-        RequestArea employeeRequest = new RequestArea(
-                "74984",
-                Actions.LOCK,
-                LocalDateTime.of(2026, 10, 19, 10, 0),
-                "ground floor"
-        );
-
-        employeeRequest.process();
-
-        JSONArray employeeDoors =
-                employeeRequest.answerToJson().getJSONArray("requestsDoors");
-
-        if (employeeDoors.length() != 4) {
-            throw new AssertionError("Expected 4 doors");
-        }
-
-        for (int i = 0; i < employeeDoors.length(); i++) {
-            JSONObject result = employeeDoors.getJSONObject(i);
-
-            if (result.getBoolean("authorized")) {
-                throw new AssertionError("Employee test failed");
-            }
-        }
-
-        System.out.println("Employee test passed!");
     }
 }
